@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Pay & Park{% endblock %}
+
+{% block content %}
+<div class="section">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+    <div>
+      <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800">
+        Welcome, {{ user.name }} 👋
+      </h1>
+      <p class="text-muted" style="font-size:0.9rem">{{ user.email }} &nbsp;·&nbsp; Member since {{ user.joined }}</p>
+    </div>
+    <a href="{{ url_for('book') }}" class="btn btn-primary">🅿 Book New Slot</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-cards">
+    <div class="stat-card green">
+      <div class="num">{{ active_bookings|length }}</div>
+      <div class="lbl">Active Bookings</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="num">{{ history|length }}</div>
+      <div class="lbl">Past Bookings</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="num">₹{{ total_spent }}</div>
+      <div class="lbl">Total Spent</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" style="color:var(--text)">{{ user.phone }}</div>
+      <div class="lbl">Phone</div>
+    </div>
+  </div>
+
+  <!-- Active Bookings -->
+  <div class="card mb-3">
+    <div class="card-title">🟢 Active Bookings</div>
+    {% if active_bookings %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Slot</th>
+              <th>Vehicle</th>
+              <th>Type</th>
+              <th>Duration</th>
+              <th>Cost</th>
+              <th>Expires At</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in active_bookings %}
+            <tr>
+              <td><strong>#{{ b.id }}</strong></td>
+              <td><strong class="text-accent">{{ b.slot_id }}</strong></td>
+              <td>{{ b.vehicle_number }}</td>
+              <td>{{ b.vehicle_type }}</td>
+              <td>{{ b.duration }} hr(s)</td>
+              <td class="text-accent"><strong>₹{{ b.amount }}</strong></td>
+              <td>{{ b.end_time }}</td>
+              <td><span class="badge badge-active">Active</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align:center;padding:2.5rem;color:var(--muted)">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem">🅿</div>
+        <p>No active bookings. <a href="{{ url_for('book') }}" class="text-accent">Book a slot now →</a></p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Booking History -->
+  <div class="card">
+    <div class="card-title">📋 Parking History</div>
+    {% if history %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Slot</th>
+              <th>Vehicle</th>
+              <th>Duration</th>
+              <th>Cost</th>
+              <th>Booked On</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in history %}
+            <tr>
+              <td><strong>#{{ b.id }}</strong></td>
+              <td>{{ b.slot_id }}</td>
+              <td>{{ b.vehicle_number }}</td>
+              <td>{{ b.duration }} hr(s)</td>
+              <td>₹{{ b.amount }}</td>
+              <td>{{ b.booked_on }}</td>
+              <td><span class="badge badge-completed">Completed</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted" style="text-align:center;padding:1.5rem">No past bookings yet.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

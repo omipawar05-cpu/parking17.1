@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Pay & Park — Smart Parking System{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">🚀 Smart Parking, Zero Hassle</div>
+  <h1>Find & Book Your <span class="highlight">Perfect Spot</span><br>In Seconds</h1>
+  <p>Real-time slot availability, instant booking, and seamless payments — all in one platform.</p>
+  <div class="hero-actions">
+    <a href="{{ url_for('book') }}" class="btn btn-primary btn-lg">🅿 Book a Slot</a>
+    <a href="{{ url_for('slots') }}" class="btn btn-outline btn-lg">View Parking Map</a>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" id="hero-available">{{ available }}</div>
+    <div class="stat-label">Slots Available</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="hero-occupied">{{ occupied }}</div>
+    <div class="stat-label">Slots Occupied</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">20</div>
+    <div class="stat-label">Total Slots</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">Availability</div>
+  </div>
+  <div class="stat-item live-badge">
+    <div class="live-dot"></div> Live Data
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-title">Everything You Need</div>
+  <p class="section-sub">A complete parking solution built for modern urban living</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🗺️</div>
+      <h3>Real-time Map</h3>
+      <p>See live slot availability across all parking zones instantly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Instant Booking</h3>
+      <p>Reserve your spot in under 60 seconds — no paperwork needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💳</div>
+      <h3>Easy Payments</h3>
+      <p>Multiple payment options with transparent fee calculation.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Auto-Release</h3>
+      <p>Slots automatically free up when your booking time expires.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Booking History</h3>
+      <p>Track all your past and current bookings from your dashboard.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Secure & Reliable</h3>
+      <p>Double-booking prevention with real-time slot locking.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" style="padding-top:0">
+  <div class="section-title">How It Works</div>
+  <p class="section-sub">Three simple steps to park smarter</p>
+  <div class="features-grid" style="max-width:700px">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(0,184,255,0.12)">1️⃣</div>
+      <h3>Choose a Slot</h3>
+      <p>Browse the parking map and pick an available slot that suits you.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,190,11,0.12)">2️⃣</div>
+      <h3>Set Duration</h3>
+      <p>Select how long you need the slot and see the cost instantly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(0,229,160,0.12)">3️⃣</div>
+      <h3>Pay & Park</h3>
+      <p>Complete payment and your slot is reserved — simple as that!</p>
+    </div>
+  </div>
+</section>
+
+<!-- RATES TABLE -->
+<section class="section" style="padding-top:0">
+  <div class="section-title">Pricing</div>
+  <p class="section-sub">Transparent rates, no hidden charges</p>
+  <div class="card" style="max-width:500px">
+    <table>
+      <thead>
+        <tr>
+          <th>Vehicle Type</th>
+          <th>Rate per Hour</th>
+          <th>Example (2 hrs)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>🛵 Two-Wheeler</td><td class="text-accent">₹20/hr</td><td>₹40</td></tr>
+        <tr><td>🚗 Car / Four-Wheeler</td><td class="text-accent">₹50/hr</td><td>₹100</td></tr>
+        <tr><td>🚌 Heavy Vehicle</td><td class="text-accent">₹100/hr</td><td>₹200</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+{% if not user %}
+<section style="padding: 3rem 2rem; text-align:center; background: var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border)">
+  <h2 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800;margin-bottom:0.75rem">Ready to park smarter?</h2>
+  <p style="color:var(--muted);margin-bottom:1.5rem">Create a free account and book your first slot today.</p>
+  <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started Free →</a>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Auto-refresh slot counts every 30s
+  setInterval(() => {
+    fetch('/api/slots')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('hero-available').textContent = data.available;
+        document.getElementById('hero-occupied').textContent  = data.occupied;
+      });
+  }, 30000);
+</script>
+{% endblock %}

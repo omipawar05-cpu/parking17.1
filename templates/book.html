@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Book a Slot — Pay & Park{% endblock %}
+
+{% block content %}
+<div class="section" style="max-width:700px">
+
+  <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800;margin-bottom:0.25rem">Book a Parking Slot</h1>
+  <p class="text-muted mb-3">Fill in your details and we'll calculate the cost instantly.</p>
+
+  <div class="card">
+    <form method="POST" id="book-form" novalidate>
+
+      <!-- Slot Selection -->
+      <div class="form-group">
+        <label class="form-label">Select Slot</label>
+        <select name="slot_id" id="slot-select" class="form-control" required>
+          <option value="">-- Choose an available slot --</option>
+          {% for slot in slots %}
+          <option value="{{ slot.id }}">Slot {{ slot.id }} — Available ✓</option>
+          {% endfor %}
+        </select>
+        {% if not slots %}
+        <p style="color:var(--danger);font-size:0.85rem;margin-top:0.4rem">⚠️ No slots available right now. Please check back later.</p>
+        {% endif %}
+      </div>
+
+      <!-- Vehicle Type -->
+      <div class="form-group">
+        <label class="form-label">Vehicle Type</label>
+        <select name="vehicle_type" id="vtype" class="form-control" required>
+          <option value="">-- Select vehicle type --</option>
+          <option value="2W">🛵 Two-Wheeler — ₹{{ rates['2W'] }}/hr</option>
+          <option value="4W">🚗 Four-Wheeler / Car — ₹{{ rates['4W'] }}/hr</option>
+          <option value="HV">🚌 Heavy Vehicle — ₹{{ rates['HV'] }}/hr</option>
+        </select>
+      </div>
+
+      <!-- Vehicle Number -->
+      <div class="form-group">
+        <label class="form-label">Vehicle Number</label>
+        <input type="text" name="vehicle_number" id="vnum" class="form-control"
+               placeholder="e.g. MH12AB1234" required
+               style="text-transform:uppercase">
+      </div>
+
+      <!-- Duration -->
+      <div class="form-group">
+        <label class="form-label">Parking Duration (hours)</label>
+        <input type="number" name="duration" id="duration" class="form-control"
+               placeholder="e.g. 2.5" min="0.5" max="24" step="0.5" required>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem">Between 0.5 and 24 hours</p>
+      </div>
+
+      <!-- LIVE COST CALCULATOR -->
+      <div class="cost-display" id="cost-box" style="display:none">
+        <div class="cost-row"><span>Vehicle Type</span><span id="c-vtype">—</span></div>
+        <div class="cost-row"><span>Rate</span><span id="c-rate">—</span></div>
+        <div class="cost-row"><span>Duration</span><span id="c-dur">—</span></div>
+        <div class="cost-row total"><span>Total Cost</span><span id="c-total">₹0</span></div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg mt-2"
+        {% if not slots %}disabled style="opacity:0.5;cursor:not-allowed"{% endif %}>
+        Proceed to Payment →
+      </button>
+    </form>
+  </div>
+
+  <p class="text-muted mt-2" style="font-size:0.85rem;text-align:center">
+    Want to see all slots first?
+    <a href="{{ url_for('slots') }}" class="text-accent">View Parking Map →</a>
+  </p>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const rates = {{ rates | tojson }};
+  const vtypeLabels = { '2W': 'Two-Wheeler', '4W': 'Four-Wheeler', 'HV': 'Heavy Vehicle' };
+
+  const vtype   = document.getElementById('vtype');
+  const dur     = document.getElementById('duration');
+  const costBox = document.getElementById('cost-box');
+
+  function calcCost() {
+    const type  = vtype.value;
+    const hours = parseFloat(dur.value);
+
+    if (!type || isNaN(hours) || hours <= 0) {
+      costBox.style.display = 'none';
+      return;
+    }
+
+    const rate  = rates[type];
+    const total = Math.round(rate * hours);
+
+    document.getElementById('c-vtype').textContent = vtypeLabels[type] || type;
+    document.getElementById('c-rate').textContent  = '₹' + rate + '/hr';
+    document.getElementById('c-dur').textContent   = hours + ' hour(s)';
+    document.getElementById('c-total').textContent = '₹' + total;
+    costBox.style.display = 'block';
+  }
+
+  vtype.addEventListener('change', calcCost);
+  dur.addEventListener('input', calcCost);
+
+  // Uppercase vehicle number
+  document.getElementById('vnum').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+  });
+
+  // Frontend validation
+  document.getElementById('book-form').addEventListener('submit', function(e) {
+    const slot = document.getElementById('slot-select').value;
+    const num  = document.getElementById('vnum').value.trim();
+    const d    = parseFloat(dur.value);
+
+    if (!slot) { alert('Please select a slot.'); e.preventDefault(); return; }
+    if (!num)  { alert('Please enter vehicle number.'); e.preventDefault(); return; }
+    if (isNaN(d) || d < 0.5 || d > 24) {
+      alert('Duration must be between 0.5 and 24 hours.');
+      e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}

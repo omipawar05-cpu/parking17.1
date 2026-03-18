@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Parking Slots — Pay & Park{% endblock %}
+
+{% block content %}
+<div class="section">
+
+  <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+    <div>
+      <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800">Parking Map</h1>
+      <p class="text-muted" style="font-size:0.9rem">Real-time slot availability — auto-refreshes every 15 seconds</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <span class="live-badge"><div class="live-dot"></div> Live</span>
+      <a href="{{ url_for('book') }}" class="btn btn-primary">Book a Slot</a>
+    </div>
+  </div>
+
+  <!-- Counters -->
+  <div class="stat-cards" style="max-width:450px;margin-bottom:1.5rem">
+    <div class="stat-card green">
+      <div class="num" id="count-available">{{ available_count }}</div>
+      <div class="lbl">Available</div>
+    </div>
+    <div class="stat-card red">
+      <div class="num" id="count-occupied">{{ occupied_count }}</div>
+      <div class="lbl">Occupied</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="parking-legend">
+    <div class="legend-item"><div class="legend-dot available"></div> Available</div>
+    <div class="legend-item"><div class="legend-dot occupied"></div> Occupied</div>
+  </div>
+
+  <!-- Slot Grid -->
+  <div class="parking-area" id="parking-grid">
+    {% for row_key, slot_list in rows.items() %}
+    <div class="parking-row">
+      <div class="row-label">Row {{ row_key }}</div>
+      <div class="slots-grid">
+        {% for slot in slot_list %}
+        <div class="slot {{ slot.status }}" title="{% if slot.status == 'occupied' %}Occupied by {{ slot.vehicle }}{% else %}Available{% endif %}">
+          {{ slot.id }}
+          <span class="slot-sub">{{ '🚗' if slot.status == 'occupied' else '✓ Free' }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Refresh slot grid via API every 15 seconds
+  function refreshSlots() {
+    fetch('/api/slots')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('count-available').textContent = data.available;
+        document.getElementById('count-occupied').textContent  = data.occupied;
+
+        data.slots.forEach(slot => {
+          // Find slot elements by their text content
+          const els = document.querySelectorAll('.slot');
+          els.forEach(el => {
+            if (el.textContent.trim().startsWith(slot.id)) {
+              el.className = 'slot ' + slot.status;
+              const sub = el.querySelector('.slot-sub');
+              if (sub) sub.textContent = slot.status === 'occupied' ? '🚗' : '✓ Free';
+              el.title = slot.status === 'occupied'
+                ? `Occupied by ${slot.vehicle}`
+                : 'Available';
+            }
+          });
+        });
+      });
+  }
+
+  setInterval(refreshSlots, 15000);
+</script>
+{% endblock %}

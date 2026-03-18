@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Payment — Pay & Park{% endblock %}
+
+{% block content %}
+<div class="section" style="max-width:600px">
+
+  <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800;margin-bottom:0.25rem">Confirm Payment</h1>
+  <p class="text-muted mb-3">Review your booking details before paying.</p>
+
+  <!-- Booking Summary -->
+  <div class="card mb-2">
+    <div class="card-title">📋 Booking Summary</div>
+    <table>
+      <tbody>
+        <tr><td class="text-muted" style="width:45%">Slot ID</td>
+            <td><strong class="text-accent" style="font-size:1.1rem">{{ booking.slot_id }}</strong></td></tr>
+        <tr><td class="text-muted">Vehicle Number</td><td><strong>{{ booking.vehicle_number }}</strong></td></tr>
+        <tr><td class="text-muted">Vehicle Type</td>
+            <td>{{ {'2W':'🛵 Two-Wheeler','4W':'🚗 Four-Wheeler','HV':'🚌 Heavy Vehicle'}.get(booking.vehicle_type, booking.vehicle_type) }}</td></tr>
+        <tr><td class="text-muted">Duration</td><td>{{ booking.duration }} hour(s)</td></tr>
+        <tr><td class="text-muted">Rate</td><td>₹{{ booking.rate }}/hr</td></tr>
+        <tr><td class="text-muted">Start Time</td><td>{{ booking.start_time }}</td></tr>
+        <tr><td class="text-muted">End Time</td><td>{{ booking.end_time }}</td></tr>
+        <tr>
+          <td class="text-muted" style="padding-top:1rem"><strong>TOTAL AMOUNT</strong></td>
+          <td style="padding-top:1rem">
+            <strong class="text-accent" style="font-size:1.4rem;font-family:var(--font-head)">₹{{ booking.amount }}</strong>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Payment Method Selection -->
+  <div class="card mb-2">
+    <div class="card-title">💳 Payment Method <span style="font-size:0.75rem;color:var(--muted);font-weight:400">(Simulation Only)</span></div>
+
+    <div class="payment-methods" id="pay-methods">
+      <div class="pay-method active" data-method="upi" onclick="selectMethod(this)">
+        <div style="font-size:1.2rem">📱</div>
+        <div>UPI</div>
+      </div>
+      <div class="pay-method" data-method="card" onclick="selectMethod(this)">
+        <div style="font-size:1.2rem">💳</div>
+        <div>Card</div>
+      </div>
+      <div class="pay-method" data-method="cash" onclick="selectMethod(this)">
+        <div style="font-size:1.2rem">💵</div>
+        <div>Cash</div>
+      </div>
+      <div class="pay-method" data-method="netbanking" onclick="selectMethod(this)">
+        <div style="font-size:1.2rem">🏦</div>
+        <div>Net Banking</div>
+      </div>
+    </div>
+
+    <!-- Simulated UPI field -->
+    <div id="upi-field">
+      <div class="form-group">
+        <label class="form-label">UPI ID</label>
+        <input type="text" class="form-control" placeholder="yourname@upi" id="upi-id">
+      </div>
+    </div>
+
+    <!-- Pay button -->
+    <form method="POST" id="pay-form">
+      <button type="submit" class="btn btn-primary btn-full btn-lg" id="pay-btn"
+              onclick="return simulatePay()">
+        💳 Pay ₹{{ booking.amount }} Now
+      </button>
+    </form>
+  </div>
+
+  <a href="{{ url_for('book') }}" class="btn btn-secondary btn-full">← Change Booking</a>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function selectMethod(el) {
+    document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('active'));
+    el.classList.add('active');
+
+    // Show/hide UPI field
+    const method = el.getAttribute('data-method');
+    document.getElementById('upi-field').style.display = method === 'upi' ? 'block' : 'none';
+  }
+
+  function simulatePay() {
+    const btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Processing Payment...';
+    btn.style.opacity = '0.7';
+
+    // Simulate 1.5s processing delay
+    setTimeout(() => {
+      document.getElementById('pay-form').submit();
+    }, 1500);
+    return false;
+  }
+</script>
+{% endblock %}

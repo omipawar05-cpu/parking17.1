@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Register — Pay & Park{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-title">Create Account</div>
+    <p class="auth-sub">Join Pay &amp; Park and book your spot in seconds.</p>
+
+    <form method="POST" id="reg-form" novalidate>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="form-control" placeholder="John Doe" required minlength="2">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" name="phone" class="form-control" placeholder="9876543210" required pattern="[0-9]{10}">
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" id="pw" class="form-control" placeholder="Min 6 chars" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" name="confirm_password" id="cpw" class="form-control" placeholder="Repeat password" required>
+        </div>
+      </div>
+      <div id="pw-error" style="color:var(--danger);font-size:0.82rem;margin-bottom:0.75rem;display:none">Passwords do not match.</div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg">Create Account →</button>
+    </form>
+
+    <div class="auth-divider mt-2">Already have an account?</div>
+    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-full mt-1">Sign In</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const form = document.getElementById('reg-form');
+  const pw   = document.getElementById('pw');
+  const cpw  = document.getElementById('cpw');
+  const err  = document.getElementById('pw-error');
+
+  form.addEventListener('submit', function(e) {
+    err.style.display = 'none';
+    if (pw.value !== cpw.value) {
+      err.style.display = 'block';
+      e.preventDefault();
+    }
+  });
+
+  cpw.addEventListener('input', () => {
+    err.style.display = pw.value !== cpw.value ? 'block' : 'none';
+  });
+</script>
+{% endblock %}

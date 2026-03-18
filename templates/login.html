@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Login — Pay & Park{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-title">Welcome Back</div>
+    <p class="auth-sub">Sign in to manage your parking bookings.</p>
+
+    <form method="POST" novalidate>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="john@example.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Your password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg">Sign In →</button>
+    </form>
+
+    <!-- Demo credentials hint -->
+    <div style="background:rgba(0,184,255,0.08);border:1px solid rgba(0,184,255,0.2);border-radius:9px;padding:1rem;margin-top:1.25rem;font-size:0.82rem;color:var(--muted)">
+      <strong style="color:var(--accent2)">Demo Credentials</strong><br>
+      👤 User: <code>demo@parking.com</code> / <code>demo123</code><br>
+      🔑 Admin: <code>admin@parking.com</code> / <code>admin123</code>
+    </div>
+
+    <div class="auth-divider mt-2">Don't have an account?</div>
+    <a href="{{ url_for('register') }}" class="btn btn-secondary btn-full mt-1">Create Account</a>
+  </div>
+</div>
+{% endblock %}

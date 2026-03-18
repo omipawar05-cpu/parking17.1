@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — Pay & Park{% endblock %}
+
+{% block content %}
+
+<!-- Admin Header -->
+<div class="admin-header">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <div>
+        <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800">
+          🔑 Admin Panel
+        </h1>
+        <p class="text-muted" style="font-size:0.9rem">System Overview &amp; Management</p>
+      </div>
+      <span class="badge badge-active" style="font-size:0.85rem;padding:0.4rem 0.9rem">Administrator Access</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+
+  <!-- Stats -->
+  <div class="stat-cards mb-3">
+    <div class="stat-card green">
+      <div class="num">{{ stats.available_slots }}</div>
+      <div class="lbl">Available Slots</div>
+    </div>
+    <div class="stat-card red">
+      <div class="num">{{ stats.active_bookings }}</div>
+      <div class="lbl">Active Bookings</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="num">{{ stats.total_bookings }}</div>
+      <div class="lbl">Total Bookings</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="num">₹{{ stats.total_earnings }}</div>
+      <div class="lbl">Total Revenue</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" style="color:var(--text)">{{ users|length }}</div>
+      <div class="lbl">Registered Users</div>
+    </div>
+  </div>
+
+  <!-- All Slots Status -->
+  <div class="card mb-3">
+    <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <div class="card-title" style="margin-bottom:0">🅿 Slot Management</div>
+      <!-- Add Slot Form -->
+      <form method="POST" action="{{ url_for('admin_add_slot') }}" class="flex gap-1 items-center">
+        <input type="text" name="slot_id" class="form-control" style="width:110px"
+               placeholder="e.g. E1" maxlength="3" required>
+        <button type="submit" class="btn btn-primary btn-sm">+ Add Slot</button>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Slot</th><th>Status</th><th>Vehicle</th><th>Booked By</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for slot_id, slot in slots.items() %}
+          <tr>
+            <td><strong>{{ slot.id }}</strong></td>
+            <td><span class="badge {{ 'badge-available' if slot.status == 'available' else 'badge-occupied' }}">
+              {{ slot.status | capitalize }}</span></td>
+            <td>{{ slot.vehicle or '—' }}</td>
+            <td>{{ slot.booked_by or '—' }}</td>
+            <td>
+              {% if slot.status == 'available' %}
+              <a href="{{ url_for('admin_remove_slot', slot_id=slot.id) }}"
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Remove slot {{ slot.id }}?')">Remove</a>
+              {% else %}
+              <span class="text-muted" style="font-size:0.82rem">In use</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- All Bookings -->
+  <div class="card mb-3">
+    <div class="card-title">📋 All Bookings</div>
+    {% if bookings %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#ID</th><th>User</th><th>Slot</th><th>Vehicle</th>
+            <th>Duration</th><th>Amount</th><th>Start</th><th>End</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td>#{{ b.id }}</td>
+            <td>
+              <div>{{ b.user_name }}</div>
+              <div style="font-size:0.78rem;color:var(--muted)">{{ b.user_email }}</div>
+            </td>
+            <td><strong class="text-accent">{{ b.slot_id }}</strong></td>
+            <td>{{ b.vehicle_number }}</td>
+            <td>{{ b.duration }} hr</td>
+            <td><strong>₹{{ b.amount }}</strong></td>
+            <td style="font-size:0.82rem">{{ b.start_time }}</td>
+            <td style="font-size:0.82rem">{{ b.end_time }}</td>
+            <td>
+              <span class="badge {{ 'badge-active' if b.status == 'active' else 'badge-completed' }}">
+                {{ b.status | capitalize }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-muted text-center" style="padding:2rem">No bookings yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Registered Users -->
+  <div class="card">
+    <div class="card-title">👥 Registered Users</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for email, u in users.items() %}
+          {% if email != 'admin@parking.com' %}
+          <tr>
+            <td>{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.phone }}</td>
+            <td>{{ u.joined }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
